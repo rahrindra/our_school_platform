@@ -11,14 +11,38 @@ security:
                 property: email
     firewalls:
         dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            pattern:
+                - ^/_profiler/
+                - ^/_wdt/
+                - ^/css/
+                - ^/images/
+                - ^/js/
+                - ^/api/register
+                - ^/api/docs
             security: false
-        main:
-            lazy: true
+
+#        login:
+#            pattern: ^/api/login
+#            stateless: true
+#            json_login:
+#                check_path: api_login
+#                success_handler: lexik_jwt_authentication.handler.authentication_success
+#                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        api:
+            pattern:   ^/api
             provider: app_user_provider
+            stateless: true
             json_login:
-                # api_login is a route we will create below
                 check_path: api_login
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+            jwt: ~
+#        main:
+#            lazy: true
+#            provider: app_user_provider
+#            json_login:
+                # api_login is a route we will create below
+#                check_path: api_login
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -31,6 +55,10 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/docs,      roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI docs
+        - { path: ^/api,       roles: ROLE_USER }
+
 
 when@test:
     security:
